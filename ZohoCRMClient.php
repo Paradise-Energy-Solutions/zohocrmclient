@@ -19,7 +19,7 @@ class ZohoCRMClient implements LoggerAwareInterface
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct($module, $authToken)
+    public function __construct($module, $authToken, $url = 'https://crm.zoho.com/crm/private/xml/')
     {
         $this->module = $module;
 
@@ -31,7 +31,7 @@ class ZohoCRMClient implements LoggerAwareInterface
                         $authToken,
                         new Transport\BuzzTransport(
                             new \Buzz\Browser(new \Buzz\Client\Curl()),
-                            'https://crm.zoho.com/crm/private/xml/'
+                            $url
                         )
                     )
                 );
@@ -56,6 +56,14 @@ class ZohoCRMClient implements LoggerAwareInterface
     {
         return new Request\GetRecords($this->request());
     }
+	
+	 /**
+     * @return Request\SearchRecords
+     */
+    public function searchRecords()
+    {
+        return new Request\SearchRecords($this->request());
+    }
 
     /**
      * @param int|null $id
@@ -69,6 +77,22 @@ class ZohoCRMClient implements LoggerAwareInterface
         }
         return $request;
     }
+	
+	/**
+	 * @param int|null $id
+     * @return Request\GetRelatedRecords
+     */
+    public function GetRelatedRecords( $module, $module_id, $fromIndex = 1, $toIndex = 200)
+    {
+		$request = new Request\GetRelatedRecords($this->request());
+		$request->parentModule( $module);
+		$request->id( $module_id);
+		
+		$request->index( $fromIndex, $toIndex);
+		
+        return $request;
+    }
+	
 
     /**
      * @return Request\InsertRecords
@@ -85,6 +109,23 @@ class ZohoCRMClient implements LoggerAwareInterface
     {
         return new Request\UpdateRecords($this->request());
     }
+	
+	/**
+     * @return Request\DeleteRecords
+     */
+    public function deleteRecords($id)
+    {
+		$request = new Request\DeleteRecords($this->request());
+		
+		if(is_array( $id)){
+			$request->idlist( implode( ';', $id));
+		}else{
+			$request->id( $id);
+		}
+        
+		
+        return $request;
+    }
 
     /**
      * @return Request\GetFields
@@ -93,6 +134,25 @@ class ZohoCRMClient implements LoggerAwareInterface
     {
         return new Request\GetFields($this->request());
     }
+	
+	/**
+     * @return Request\GetUsers
+     */
+    public function getUsers()
+    {
+        return new Request\GetUsers($this->request());
+    }
+	
+	
+	/**
+     * @return Request\CreatorAddRecords
+     */
+    public function creatorAddRecords()
+    {
+        return new Request\CreatorAddRecords($this->request());
+    }
+	
+	
 
     /**
      * @return \Christiaan\ZohoCRMClient\Transport\TransportRequest
