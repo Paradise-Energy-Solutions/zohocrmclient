@@ -4,11 +4,11 @@ namespace Christiaan\ZohoCRMClient\Request;
 use Christiaan\ZohoCRMClient\Response\MutationResult;
 
 /**
- * InsertRecords API Call
+ * Zoho creator InsertRecords API Call
  *
- * @see https://www.zoho.com/crm/help/api/updaterecords.html
+ * @see https://www.zoho.com/creator/help/api/rest-api/rest-api-add-records.html
  */
-class UpdateRecords extends AbstractRequest
+class CreatorAddRecords extends AbstractRequest
 {
     /** @var array */
     private $records = array();
@@ -16,23 +16,12 @@ class UpdateRecords extends AbstractRequest
     protected function configureRequest()
     {
         $this->request
-            ->setMethod('updateRecords');
-    }
-
-    /**
-     * @param string $id
-     * @return GetRecordById
-     */
-    public function id($id)
-    {
-        $this->request->setParam('id', $id);
-
-        return $this;
+            ->setMethod('record/add');
     }
 
     /**
      * @param array $record Record as a simple associative array
-     * @return UpdateRecords
+     * @return InsertRecords
      */
     public function addRecord(array $record)
     {
@@ -41,16 +30,8 @@ class UpdateRecords extends AbstractRequest
     }
 
     /**
-     * @return array
-     */
-    public function getRecords()
-    {
-        return $this->records;
-    }
-
-    /**
      * @param array $records array containing records otherwise added by addRecord()
-     * @return UpdateRecords
+     * @return InsertRecords
      */
     public function setRecords(array $records)
     {
@@ -59,7 +40,7 @@ class UpdateRecords extends AbstractRequest
     }
 
     /**
-     * @return UpdateRecords
+     * @return InsertRecords
      */
     public function triggerWorkflow()
     {
@@ -68,7 +49,7 @@ class UpdateRecords extends AbstractRequest
     }
 
     /**
-     * @return UpdateRecords
+     * @return InsertRecords
      */
     public function onDuplicateUpdate()
     {
@@ -77,7 +58,7 @@ class UpdateRecords extends AbstractRequest
     }
 
     /**
-     * @return UpdateRecords
+     * @return InsertRecords
      */
     public function onDuplicateError()
     {
@@ -86,7 +67,7 @@ class UpdateRecords extends AbstractRequest
     }
 
     /**
-     * @return UpdateRecords
+     * @return InsertRecords
      */
     public function requireApproval()
     {
@@ -99,11 +80,6 @@ class UpdateRecords extends AbstractRequest
      */
     public function request()
     {
-        if (count($this->records) > 1) {
-            $this->request->setParam('id', null);
-			$this->request->setParam('version', 4);
-        }
-
         return $this->request
             ->setParam('xmlData', $this->records)
             ->request();
