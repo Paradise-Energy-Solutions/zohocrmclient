@@ -85,8 +85,7 @@ class XmlDataTransportDecorator implements Transport
      * @throws Exception\ZohoErrorException when content is a Error response
      * @return Response\Record[]|Response\Field[]|Response\MutationResult[]
      */
-    private function parse($content)
-    {
+    private function parse($content){
         $xml = new SimpleXMLElement($content);
         if (isset($xml->error)) {
             throw new Exception\ZohoErrorException(
@@ -104,6 +103,10 @@ class XmlDataTransportDecorator implements Transport
                 )
             );
         }
+		
+		if ($this->method == 'getUsers') {
+            return $this->parseResponseGetUsers($xml);
+        }
 
         if ($this->method == 'getFields') {
             return $this->parseResponseGetFields($xml);
@@ -116,7 +119,11 @@ class XmlDataTransportDecorator implements Transport
         if (isset($xml->result->row->success) || isset($xml->result->row->error)) {
             return $this->parseResponsePostRecordsMultiple($xml);
         }
-
+		
+		if ($this->method == 'deleteRecords'){
+			return $content;
+		}
+		
         throw new Exception\UnexpectedValueException('Xml doesn\'t contain expected fields');
     }
 
@@ -130,6 +137,29 @@ class XmlDataTransportDecorator implements Transport
         return $records;
     }
 
+	
+	private function parseResponseGetUsers(SimpleXMLElement $xml){
+		
+		$records = array();
+        
+		
+		
+		foreach( $xml->user as $row) {
+			$record = array();
+			
+			foreach( $row->attributes() as $k => $v){
+				$record[(string)$k] = (string)$v;
+			}
+			$record['name'] = (string)$row[0];
+			
+            $records[(string) $row['id']] = new Response\Record( $record, (int) $row['id']);
+        }
+		
+        return $records;
+	}
+	
+	
+	
     private function rowToRecord(SimpleXMLElement $row)
     {
         $data = array();
